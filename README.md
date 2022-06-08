@@ -44,7 +44,8 @@ ViewModelはUI controllerによって表示されるデータを準備するた�
   
   ViewModelFactory
 ------------
- ・ViewModelFactoryはViewModelオブジェクトをインスタンス化します。
+ ・ファクトリーメソッドパターンはオブジェクトを作るためにファクトリーメソッドを使う生成デザインパターンの一つです。ファクトリーメソッドは同じクラスのインスタンスを返すメソッドです。
+    ViewModelとは別にViewModelFactoryクラスを用意する。
 
 ![image](https://user-images.githubusercontent.com/96398365/172636919-2749f43c-fcf2-4c93-a029-ba62a2b2ef05.png)
 
