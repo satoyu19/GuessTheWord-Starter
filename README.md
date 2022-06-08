@@ -1,45 +1,50 @@
-ViewModel and ViewModelFactory - Starter Code
+使用技術
 ==================================
 
-Use as starter code for the ViewModel codelab.
+・viewModel
 
-Introduction
+
+アプリアーキテクチャー
 ------------
 
-This starter app is a two player game, GuessTheWord. It is a word guessing app you can play with one or more friends. To play, hold the device in landscape, facing away from you with your thumbs on the **Skip** and **Got It** buttons. Your friends can then give you clues to help you guess the word. If you get the word right, press **Got It**. If you're stuck, press **Skip**.
-You will modify the app to use Architecture components and best practices.
+  ・アプリアーキテクチャはアプリのクラスやクラス間の関係をデザインするための方法の一つで、これによりコードをきれいにし、
+  特定の状況下で効率よく処理させたり、簡単に動作させることができます。Androidアプリアーキテクチャガイドラインに従って、
+  Androidアーキテクチャコンポーネントを使用していきます。AndroidアプリアーキテクチャはMVVM(model-view-viewmodel)パターンによく似ています。
 
-Pre-requisites
---------------
+  UI controller
+------------
+ ・UI controllerはActivityやFragmentのようなUIベースのクラスです。UI controllerにはビューやユーザーインプットを捕捉するようなUIや対話OSを操作するロジックのみが含まれるべきです。
+ テキストを表示するためのロジックのような意思決定論理はUI controllerの中には入れてはいけません。
 
-You need to know:
-- How to open, build, and run Android apps with Android Studio.
-- How to use the Navigation Architecture Component
-- Passing the data between navigation destinations.
-- Read the logs using the Logcat.
+  ViewModel
+------------
+ ・ViewModelはViewModelに関連するフラグメントやアクティビティに表示されているデータを保持します。
+ViewModelはUI controllerによって表示されるデータを準備するための単純な計算やデータの変換などを行います。このアーキテクチャでは、ViewModelが意思決定を行います。
 
+***利用方法***<br>
+  ・dependenciesブロックの中に、ViewModel用のGradle依存関係を追加、バージョン確認要
+  ・ViewModelはそれに関連するフラグメントが取り外されたとき、またはアクティビティが終了したときに破棄されます。
+    ViewModelが破棄される直前にonCleared()コールバックがリソースをクリーンアップするために呼び出されます。
+  ・ViewModelはUI controllerに紐づけられる必要があります。それら二つを紐づけるためには、UI controllerの中でViewModelの参照を作成します。
+    フラグメントの中で、それに対するViewModel型のクラス変数をフィールドとして定義する。
+  ・画面回転のようなコンフィグレーション変化の間、フラグメントのようなUI controllerは再生成されます。しかしながら、ViewModelインスタンスは引き継がれます。
+    もしViewModelインスタンスをViewModelクラスを使って作っていると、フラグメントが再生成される度に、新しいオブジェクトが作られることになります。
+    ですのでViewModelインスタンスはViewModelProviderを使って作成しましょう。
+  ![image](https://user-images.githubusercontent.com/96398365/172641634-bbb661b8-ae95-4bef-aa27-6485721cc4c4.png)
 
-Getting Started
----------------
+***ViewModelProviderの機能***<br>
+  ・ViewModelProviderはViewModelが既に存在している場合、そのViewModelを返します。存在しない場合は新しく作成します。
+  ・ViewModelProviderは与えられたスコープ（アクティビティやフラグメント）に紐づいたViewModelインスタンスを作成します。
+  ・生成されたViewModelはスコープが有効である限り、保持されます。例として、スコープがフラグメントである場合、ViewModelはフラグメントが取り外されるまで保持されます。
+  
+  ・ViewModelはコンフィグレーション変化の前後でも生き残るので、コンフィグレーション変化に対応させたいデータを置く場所として適しています。
+  
+  ・ViewModelにはフラグメント、アクティビティ、またはビューなどの参照を含ませるべきではありません。
+  なぜならそれらはコンフィグレーション変化の後に生き残らないからです。(Fragment等は、コンフィグレーション変化によって再生成されるため保持しても意味がない)
+  
+  ViewModelFactory
+------------
+ ・ViewModelFactoryはViewModelオブジェクトをインスタンス化します。
 
-1. Download and run the app.
+![image](https://user-images.githubusercontent.com/96398365/172636919-2749f43c-fcf2-4c93-a029-ba62a2b2ef05.png)
 
-License
--------
-
-Copyright 2019 Google, Inc.
-
-Licensed to the Apache Software Foundation (ASF) under one or more contributor
-license agreements.  See the NOTICE file distributed with this work for
-additional information regarding copyright ownership.  The ASF licenses this
-file to you under the Apache License, Version 2.0 (the "License"); you may not
-use this file except in compliance with the License.  You may obtain a copy of
-the License at
-
-  http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
-WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
-License for the specific language governing permissions and limitations under
-the License.
