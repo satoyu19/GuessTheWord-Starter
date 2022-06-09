@@ -17,12 +17,14 @@
 package com.example.android.guesstheword.screens.game
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.NavHostFragment
 import com.example.android.guesstheword.R
@@ -49,22 +51,34 @@ class GameFragment : Fragment() {
                 false
         )
 
+        //LiveDataオブジェクトのスコープを決め、game_fragment.xmlレイアウト内のビューを自動で更新できるようにします。
+        binding.lifecycleOwner = viewLifecycleOwner
+
             //ViewModel初期化
         viewModel = ViewModelProvider(this).get(GameViewModel::class.java)
 
-        binding.correctButton.setOnClickListener { onCorrect() }
-        binding.skipButton.setOnClickListener { onSkip() }
-        binding.endGameButton.setOnClickListener { onEndGame() }
-        updateScoreText()
-        updateWordText()
+        //ViewModelとレイアウトファイルの紐付け
+        binding.gameViewModel = viewModel
+
+        //ViewModelバインディングにより不要
+//        binding.correctButton.setOnClickListener { onCorrect() }
+//        binding.skipButton.setOnClickListener { onSkip() }
+//        binding.endGameButton.setOnClickListener { onEndGame() }
+//        viewModel.word.observe(viewLifecycleOwner, Observer {
+//            binding.wordText.text = it
+//        })
+
+        //Observerオブジェクトの取り付け,データに変更があった場合にイベントを受け取理、処理を実行する。
+        viewModel.score.observe(viewLifecycleOwner, Observer {
+            binding.scoreText.text = it.toString()
+            Log.i("GuessTheWord", "画面を回転すると非アクティブ状態からアクティブ状態に変化し、更新を受ける")
+        })
+
+        viewModel.eventGameFinish.observe(viewLifecycleOwner, Observer {
+            if (it) gameFinished()  //eventGameFinishを監視、trueになったらゲームを終了
+        })
+
         return binding.root
-
-    }
-
-    /** Methods for buttons presses **/
-
-    private fun onEndGame(){
-        gameFinished()
     }
 
     //得点をフラグメントに引き渡し
@@ -72,28 +86,29 @@ class GameFragment : Fragment() {
         Toast.makeText(activity, "Game has just finished", Toast.LENGTH_SHORT).show()
 //        SafeArgsの依存関係書いてないのになぜ使える?クラスパスしかないがそれだけで行ける？
         val action = GameFragmentDirections.actionGameToScore()
-        action.score = viewModel.score
+        //viewModel.score.valueがnullであれば0を返す
+        action.score = viewModel.score.value?:0
         NavHostFragment.findNavController(this).navigate(action)
     }
+//      ViewModelバインディングにより不要
+//    private fun onEndGame(){
+//        gameFinished()
+//    }
 
-    private fun onSkip() {
-        viewModel.onSkip()
-        updateWordText()
-        updateScoreText()
-    }
-
-    private fun onCorrect() {
-        viewModel.onCorrect()
-        updateScoreText()
-        updateWordText()
-    }
+//    private fun onSkip() {
+//        viewModel.onSkip()
+//    }
+//
+//    private fun onCorrect() {
+//        viewModel.onCorrect()
+//    }
 
     //Viewに関する処理であり、計算等のロジックがないため、UI controllerに書くのが適している
-    private fun updateWordText() {
-        binding.wordText.text = viewModel.word
-    }
-
-    private fun updateScoreText() {
-        binding.scoreText.text = viewModel.score.toString()
-    }
+//    private fun updateWordText() {
+//        binding.wordText.text = viewModel.word.value
+//    }
+//
+//    private fun updateScoreText() {
+//        binding.scoreText.text = viewModel.score.value.toString()
+//    }
 }
